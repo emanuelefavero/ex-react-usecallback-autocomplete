@@ -9,7 +9,7 @@ export const ProductDetails = ({ product }) => (
     <Card.Header>
       {product.brand && <Badge>{product.brand}</Badge>}
       <Card.Title as='h2'>{product.name}</Card.Title>
-      {product.rating && <Rating value={product.rating} />}
+      {product.rating != null && <Rating value={product.rating} />}
     </Card.Header>
 
     <Card.Content>
