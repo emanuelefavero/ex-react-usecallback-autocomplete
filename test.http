@@ -1,0 +1,29 @@
+@baseUrl = http://localhost:3333
+@resource = products
+@query = headphones
+
+### GET index
+GET {{baseUrl}}/{{resource}}
+
+### GET index with query
+GET {{baseUrl}}/{{resource}}?search={{query}}
+
+# Example response
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "brand": "Sony",
+    "color": "Black",
+    "connectivity": "Bluetooth",
+    "description": "Premium headphones with noise-cancelling feature",
+    "id": 1,
+    "image": "https://fakeimg.pl/500x500/?text=Sony+Headphones",
+    "name": "Wireless Noise-Cancelling Headphones",
+    "price": 249.99,
+    "rating": 4.5,
+    "wireless": true
+  },
+  ...others
+]
