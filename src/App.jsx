@@ -4,6 +4,7 @@ import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { Input } from './components/ui/Input';
 import { fetchJson } from './lib/api';
+import { debounce } from './lib/debounce';
 import './App.css';
 
 const API_URL = 'http://localhost:3333';
@@ -17,22 +18,6 @@ const STEP = {
   ERROR: 'error',
 };
 const INITIAL_STATE = { step: STEP.IDLE };
-
-const debounce = (callback, delay) => {
-  let timer;
-
-  const debounced = (...args) => {
-    clearTimeout(timer);
-
-    timer = setTimeout(() => {
-      callback(...args);
-    }, delay);
-  };
-
-  debounced.cancel = () => clearTimeout(timer);
-
-  return debounced;
-};
 
 const ProductListItem = ({ id, name, onSelect }) => (
   <li>
