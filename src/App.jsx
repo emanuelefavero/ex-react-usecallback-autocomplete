@@ -57,22 +57,19 @@ export const App = () => {
     debouncedSearch(search);
   };
 
-  const handleProductSelect = useCallback(
-    async id => {
-      debouncedSearch.cancel();
-      setState({ step: STEP.LOADING });
+  const handleProductSelect = async id => {
+    debouncedSearch.cancel();
+    setState({ step: STEP.LOADING });
 
-      try {
-        console.log('[API] Product details:', id);
-        const data = await fetchJson(`${API_URL}/${RESOURCE}/${id}`);
+    try {
+      console.log('[API] Product details:', id);
+      const data = await fetchJson(`${API_URL}/${RESOURCE}/${id}`);
 
-        setState({ step: STEP.PRODUCT_SUCCESS, data });
-      } catch (error) {
-        setState({ step: STEP.ERROR, error: error.message });
-      }
-    },
-    [debouncedSearch],
-  );
+      setState({ step: STEP.PRODUCT_SUCCESS, data });
+    } catch (error) {
+      setState({ step: STEP.ERROR, error: error.message });
+    }
+  };
 
   const getContent = () => {
     switch (state.step) {
