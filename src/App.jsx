@@ -21,6 +21,7 @@ const INITIAL_STATE = { step: STEP.IDLE };
 export const App = () => {
   const [state, setState] = useState(INITIAL_STATE);
 
+  // Keep searchProducts stable across renders to avoid recreating the debounced function below
   const searchProducts = useCallback(async search => {
     setState({ step: STEP.LOADING });
 
@@ -35,9 +36,10 @@ export const App = () => {
     }
   }, []);
 
+  // Memoize the debounced function across renders
   const debouncedSearch = useMemo(
     () => debounce(searchProducts, DEBOUNCE_DELAY),
-    [searchProducts],
+    [searchProducts], // Debounce gets recreated only if searchProducts changes
   );
 
   const handleSearch = event => {
