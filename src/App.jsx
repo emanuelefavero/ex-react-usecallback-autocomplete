@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { Input } from './components/ui/Input';
 import { fetchJson } from './lib/api';
@@ -12,6 +13,7 @@ const STEP = {
   IDLE: 'idle',
   LOADING: 'loading',
   SUCCESS: 'success',
+  PRODUCT_SUCCESS: 'product_success',
   ERROR: 'error',
 };
 const INITIAL_STATE = { step: STEP.IDLE };
@@ -32,26 +34,46 @@ const debounce = (callback, delay) => {
   return debounced;
 };
 
-const ProductListItem = ({ name }) => (
-  <li className='font-medium' tabIndex={0}>
-    <Search size={16} />
-    {name}
+const ProductListItem = ({ id, name, onSelect }) => (
+  <li>
+    <Button variant={Button.variant.ghost} onClick={() => onSelect(id)}>
+      <Search size={16} />
+      {name}
+    </Button>
   </li>
 );
 
-const ProductList = ({ products }) => {
-  if (!products || products.length === 0) return null;
+const ProductDetails = ({ product }) => (
+  <Card as='article' className='product-detail'>
+    <Card.Header>
+      <Card.Title as='h2'>{product.name}</Card.Title>
+    </Card.Header>
 
-  return (
+    <Card.Content>
+      <p>{product.description}</p>
+      <p>Brand: {product.brand}</p>
+      <p>Price: {product.price}</p>
+      <p>Rating: {product.rating}</p>
+    </Card.Content>
+  </Card>
+);
+
+const ProductList = ({ products, onSelect }) =>
+  products &&
+  products.length > 0 && (
     <Card className='product-list'>
       <ul>
         {products.slice(0, 10).map(product => (
-          <ProductListItem key={product.id} name={product.name} />
+          <ProductListItem
+            key={product.id}
+            id={product.id}
+            name={product.name}
+            onSelect={onSelect}
+          />
         ))}
       </ul>
     </Card>
   );
-};
 
 export const App = () => {
   const [state, setState] = useState(INITIAL_STATE);
@@ -79,6 +101,22 @@ export const App = () => {
     [searchProducts],
   );
 
+  const handleProductSelect = useCallback(
+    async id => {
+      debouncedSearch.cancel();
+      setState({ step: STEP.LOADING });
+
+      try {
+        const data = await fetchJson(`${API_URL}/${RESOURCE}/${id}`);
+
+        setState({ step: STEP.PRODUCT_SUCCESS, data });
+      } catch (error) {
+        setState({ step: STEP.ERROR, error: error.message });
+      }
+    },
+    [debouncedSearch],
+  );
+
   const handleSearch = event => {
     const search = event.target.value.trim();
 
@@ -102,7 +140,13 @@ export const App = () => {
       case STEP.SUCCESS:
         const { data: products } = state;
 
-        return <ProductList products={products} />;
+        return (
+          <ProductList products={products} onSelect={handleProductSelect} />
+        );
+
+      case STEP.PRODUCT_SUCCESS:
+        const { data: product } = state;
+        return <ProductDetails product={product} />;
     }
   };
 
