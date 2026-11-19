@@ -5,3 +5,28 @@ main {
     margin-top: 1rem;
   }
 }
+
+.search-form {
+  z-index: 1;
+}
+
+.product-list {
+  position: relative;
+  top: -0.6rem;
+  z-index: -1;
+  padding-block: 0.3rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding-block: 0.5rem;
+    padding-inline: 0.75rem;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--background-secondary);
+    }
+  }
+}
