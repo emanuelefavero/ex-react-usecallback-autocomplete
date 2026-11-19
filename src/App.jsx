@@ -19,13 +19,17 @@ const INITIAL_STATE = { step: STEP.IDLE };
 const debounce = (callback, delay) => {
   let timer;
 
-  return (...args) => {
+  const debounced = (...args) => {
     clearTimeout(timer);
 
     timer = setTimeout(() => {
       callback(...args);
     }, delay);
   };
+
+  debounced.cancel = () => clearTimeout(timer);
+
+  return debounced;
 };
 
 const ProductListItem = ({ name }) => (
@@ -76,7 +80,15 @@ export const App = () => {
   );
 
   const handleSearch = event => {
-    debouncedSearch(event.target.value.trim());
+    const search = event.target.value.trim();
+
+    if (search === '') {
+      debouncedSearch.cancel();
+      setState(INITIAL_STATE);
+      return;
+    }
+
+    debouncedSearch(search);
   };
 
   const getContent = () => {
