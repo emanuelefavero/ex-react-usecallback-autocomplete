@@ -1,8 +1,7 @@
-import { Search } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import { Button } from './components/ui/Button';
-import { Card } from './components/ui/Card';
-import { Input } from './components/ui/Input';
+import { ProductDetails } from './components/ProductDetails';
+import { ProductList } from './components/ProductList';
+import { ProductSearchForm } from './components/ProductSearchForm';
 import { fetchJson } from './lib/api';
 import { debounce } from './lib/debounce';
 import './App.css';
@@ -19,47 +18,6 @@ const STEP = {
 };
 const INITIAL_STATE = { step: STEP.IDLE };
 
-const ProductListItem = ({ id, name, onSelect }) => (
-  <li>
-    <Button variant={Button.variant.ghost} onClick={() => onSelect(id)}>
-      <Search size={16} />
-      {name}
-    </Button>
-  </li>
-);
-
-const ProductDetails = ({ product }) => (
-  <Card as='article' className='product-detail'>
-    <Card.Header>
-      <Card.Title as='h2'>{product.name}</Card.Title>
-    </Card.Header>
-
-    <Card.Content>
-      <p>{product.description}</p>
-      <p>Brand: {product.brand}</p>
-      <p>Price: {product.price}</p>
-      <p>Rating: {product.rating}</p>
-    </Card.Content>
-  </Card>
-);
-
-const ProductList = ({ products, onSelect }) =>
-  products &&
-  products.length > 0 && (
-    <Card className='product-list'>
-      <ul>
-        {products.slice(0, 10).map(product => (
-          <ProductListItem
-            key={product.id}
-            id={product.id}
-            name={product.name}
-            onSelect={onSelect}
-          />
-        ))}
-      </ul>
-    </Card>
-  );
-
 export const App = () => {
   const [state, setState] = useState(INITIAL_STATE);
 
@@ -71,6 +29,7 @@ export const App = () => {
 
     setState({ step: STEP.LOADING });
 
+    // API call to search products
     try {
       const data = await fetchJson(
         `${API_URL}/${RESOURCE}?search=${encodeURIComponent(search)}`,
@@ -91,6 +50,7 @@ export const App = () => {
       debouncedSearch.cancel();
       setState({ step: STEP.LOADING });
 
+      // API call to fetch product details by ID
       try {
         const data = await fetchJson(`${API_URL}/${RESOURCE}/${id}`);
 
@@ -123,15 +83,12 @@ export const App = () => {
         return null;
 
       case STEP.SUCCESS:
-        const { data: products } = state;
-
         return (
-          <ProductList products={products} onSelect={handleProductSelect} />
+          <ProductList products={state.data} onSelect={handleProductSelect} />
         );
 
       case STEP.PRODUCT_SUCCESS:
-        const { data: product } = state;
-        return <ProductDetails product={product} />;
+        return <ProductDetails product={state.data} />;
     }
   };
 
@@ -139,16 +96,7 @@ export const App = () => {
     <main className='container'>
       <h1>Search Products</h1>
 
-      <form className='search-form' onSubmit={e => e.preventDefault()}>
-        <label htmlFor='search' className='sr-only'>
-          Search for a product:
-        </label>
-        <Input
-          id='search'
-          placeholder='Search for a product...'
-          onChange={handleSearch}
-        />
-      </form>
+      <ProductSearchForm onSearch={handleSearch} />
 
       {getContent()}
     </main>
