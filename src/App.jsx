@@ -22,11 +22,6 @@ export const App = () => {
   const [state, setState] = useState(INITIAL_STATE);
 
   const searchProducts = useCallback(async search => {
-    if (search === '') {
-      setState(INITIAL_STATE);
-      return;
-    }
-
     setState({ step: STEP.LOADING });
 
     try {
@@ -49,7 +44,7 @@ export const App = () => {
     const search = event.target.value.trim();
 
     if (search === '') {
-      debouncedSearch.cancel(); // Cancel any pending search requests
+      debouncedSearch.cancel(); // Cancel the pending debounce timer
       setState(INITIAL_STATE);
       return;
     }
