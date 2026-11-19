@@ -29,8 +29,8 @@ export const App = () => {
 
     setState({ step: STEP.LOADING });
 
-    // API call to search products
     try {
+      console.log('[API] Search products:', search);
       const data = await fetchJson(
         `${API_URL}/${RESOURCE}?search=${encodeURIComponent(search)}`,
       );
@@ -45,13 +45,25 @@ export const App = () => {
     [searchProducts],
   );
 
+  const handleSearch = event => {
+    const search = event.target.value.trim();
+
+    if (search === '') {
+      debouncedSearch.cancel(); // Cancel any pending search requests
+      setState(INITIAL_STATE);
+      return;
+    }
+
+    debouncedSearch(search);
+  };
+
   const handleProductSelect = useCallback(
     async id => {
       debouncedSearch.cancel();
       setState({ step: STEP.LOADING });
 
-      // API call to fetch product details by ID
       try {
+        console.log('[API] Product details:', id);
         const data = await fetchJson(`${API_URL}/${RESOURCE}/${id}`);
 
         setState({ step: STEP.PRODUCT_SUCCESS, data });
@@ -61,18 +73,6 @@ export const App = () => {
     },
     [debouncedSearch],
   );
-
-  const handleSearch = event => {
-    const search = event.target.value.trim();
-
-    if (search === '') {
-      debouncedSearch.cancel();
-      setState(INITIAL_STATE);
-      return;
-    }
-
-    debouncedSearch(search);
-  };
 
   const getContent = () => {
     switch (state.step) {
